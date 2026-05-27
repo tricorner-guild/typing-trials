@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Nora Bean's Typing Trials</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,600;0,700;1,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #222222;
+    --border: #2e2e2e;
+    --text: #e8e4dc;
+    --text-muted: #555;
+    --text-dim: #888;
+    --green: #7cb87c;
+    --green-dim: #3a5c3a;
+    --amber: #c8a45a;
+    --amber-dim: #5c4a2a;
+    --red: #c86464;
+    --blue: #6a9fcf;
+    --active-bg: #1e2a1e;
+    --active-border: #4a7c4a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100dvh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0;
+  }
+
+  #app {
+    width: 100%;
+    max-width: 420px;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: var(--bg);
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; flex-direction: column; flex: 1; }
+  .screen.active { display: flex; }
+
+  /* ── START SCREEN ── */
+  #start-screen {
+    justify-content: center;
+    align-items: center;
+    padding: 40px 24px 32px;
+    gap: 0;
+  }
+
+  .logo-area {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .logo-bean {
+    font-size: 48px;
+    line-height: 1;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .logo-title {
+    font-family: 'Bitter', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.3px;
+    line-height: 1.3;
+  }
+
+  .logo-sub {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 6px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.5px;
+  }
+
+  .start-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .theme-pill-start {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--amber);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 16px;
+  }
+
+  .start-passage-preview {
+    font-family: 'Bitter', serif;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  .start-meta {
+    display: flex;
+    gap: 16px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .start-meta-item {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .start-meta-item span {
+    color: var(--text);
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    margin-bottom: 2px;
+  }
+
+  .streak-badge-start {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .streak-badge-start .streak-num {
+    font-weight: 700;
+    color: var(--text);
+    font-size: 16px;
+  }
+
+  #start-btn {
+    width: 100%;
+    background: var(--text);
+    color: var(--bg);
+    border: none;
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    letter-spacing: 0.2px;
+    transition: opacity 0.15s;
+  }
+
+  #start-btn:active { opacity: 0.8; }
+
+  /* ── TYPING SCREEN ── */
+  #typing-screen {
+    padding: 0;
+  }
+
+  .typing-header {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .typing-header-left {
+    font-family: 'Bitter', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .day-badge {
+    background: var(--blue);
+    color: var(--bg);
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+  }
+
+  .theme-label {
+    padding: 10px 20px;
+    font-size: 12px;
+    color: var(--amber);
+    font-family: 'DM Mono', monospace;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .progress-bar-wrap {
+    height: 3px;
+    background: var(--surface2);
+    flex-shrink: 0;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--green);
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+
+  .stats-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .stat-lbl {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    margin-top: 3px;
+  }
+
+  .stat-item:last-child .stat-val {
+    color: var(--amber);
+  }
+
+  .passage-area {
+    flex: 1;
+    padding: 24px 20px 20px;
+    overflow-y: auto;
+  }
+
+  .passage-text {
+    font-family: 'Bitter', serif;
+    font-size: 20px;
+    line-height: 1.8;
+    color: var(--text-dim);
+    word-spacing: 2px;
+  }
+
+  .word {
+    display: inline-block; /* prevents mid-word line breaks */
+    position: relative;
+    transition: color 0.1s;
+  }
+
+  .word.upcoming { color: var(--text-muted); }
+  .word.active   { color: var(--text-muted); }
+  .word.correct  { color: var(--green); }
+  .word.error {
+    color: var(--red);
+    text-decoration: line-through;
+    text-decoration-color: var(--red);
+  }
+
+  /* character spans inside the active word */
+  .char         { display: inline; position: relative; }
+  .char.char-correct { color: var(--green); }
+  .char.char-wrong   { color: var(--red); }
+  .char.char-pending { color: var(--text-muted); }
+
+  /* blinking underline on the character the cursor is sitting on */
+  .char.char-cursor {
+    border-bottom: 2px solid var(--green);
+    animation: cursorBlink 0.9s ease infinite;
+  }
+
+  @keyframes cursorBlink {
+    0%, 100% { border-bottom-color: var(--green); }
+    50%       { border-bottom-color: transparent; }
+  }
+
+  .word-space { display: inline; }
+
+  .typing-footer {
+    padding: 10px 20px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  #hidden-input {
+    position: fixed;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    top: 50%;
+    left: 50%;
+    pointer-events: none;
+    font-size: 16px; /* prevent iOS zoom */
+  }
+
+  /* ── RESULTS SCREEN ── */
+  #results-screen {
+    padding: 0;
+    overflow-y: auto;
+  }
+
+  .results-header {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .results-title {
+    font-family: 'Bitter', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .results-subtitle {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    margin-top: 4px;
+  }
+
+  .tier-badge {
+    background: var(--amber-dim);
+    border: 1px solid var(--amber);
+    color: var(--amber);
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+    padding: 5px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+    flex-shrink: 0;
+  }
+
+  .nora-quote {
+    padding: 14px 20px;
+    font-family: 'Bitter', serif;
+    font-size: 14px;
+    font-style: italic;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+    line-height: 1.5;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    margin: 0;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    padding: 18px 20px;
+  }
+
+  .stat-card-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .stat-card-sub {
+    font-size: 11px;
+    color: var(--green);
+    margin-top: 3px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .stat-card-lbl {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    margin-top: 6px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .trail-section {
+    padding: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .trail-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 12px;
+  }
+
+  .trail-emojis {
+    font-size: 20px;
+    line-height: 1.6;
+    letter-spacing: 2px;
+    word-break: break-all;
+  }
+
+  .trail-legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .share-block {
+    margin: 0 20px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+
+  .share-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    margin-bottom: 12px;
+  }
+
+  #copy-btn {
+    width: 100%;
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  #copy-btn.copied {
+    background: var(--green-dim);
+    color: var(--green);
+    border-color: var(--green);
+  }
+
+  .play-again-btn {
+    display: block;
+    margin: 0 20px 32px;
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .play-again-btn:hover { color: var(--text); }
+
+  /* Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .screen.active {
+    animation: fadeIn 0.25s ease forwards;
+  }
+
+  .stat-card {
+    animation: fadeIn 0.3s ease forwards;
+  }
+
+
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- START SCREEN -->
+  <div id="start-screen" class="screen active">
+    <div class="logo-area">
+      <span class="logo-bean">🫘</span>
+      <div class="logo-title">Nora Bean's<br>Typing Trials</div>
+      <div class="logo-sub">daily passage · trial #<span id="start-day-num">—</span></div>
+    </div>
+
+    <div class="start-card">
+      <div class="theme-pill-start">☀️ <span id="start-theme">loading…</span></div>
+      <div class="start-passage-preview" id="start-preview">—</div>
+      <div class="start-meta">
+        <div class="start-meta-item"><span id="start-words">—</span>words</div>
+        <div class="start-meta-item"><span>~<span id="start-est">—</span>s</span>at 60 WPM</div>
+      </div>
+    </div>
+
+    <div class="streak-badge-start">
+      🔥 <span class="streak-num" id="start-streak">0</span>&nbsp;day streak
+    </div>
+
+    <button id="start-btn">Begin Trial</button>
+  </div>
+
+  <!-- TYPING SCREEN -->
+  <div id="typing-screen" class="screen">
+    <div class="typing-header">
+      <div class="typing-header-left">Nora Bean's Typing Trials</div>
+      <div class="day-badge">#<span id="typing-day-num">—</span></div>
+    </div>
+    <div class="theme-label">☀️ Today's theme: <span id="typing-theme">—</span></div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar"></div></div>
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-val" id="live-wpm">0</div>
+        <div class="stat-lbl">WPM</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val" id="live-acc">100%</div>
+        <div class="stat-lbl">Accuracy</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val" id="live-time">0:00</div>
+        <div class="stat-lbl">Time</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val" id="live-streak">0</div>
+        <div class="stat-lbl">🔥 Streak</div>
+      </div>
+    </div>
+    <div class="passage-area" id="passage-area">
+      <div class="passage-text" id="passage-display"></div>
+    </div>
+    <div class="typing-footer">autocorrect off · swipe typing on</div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="results-screen" class="screen">
+    <div class="results-header">
+      <div>
+        <div class="results-title">Trial #<span id="res-day">—</span> complete</div>
+        <div class="results-subtitle"><span id="res-theme">—</span> · <span id="res-date">—</span></div>
+      </div>
+      <div class="tier-badge" id="res-tier">—</div>
+    </div>
+    <div class="nora-quote" id="res-quote">—</div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card-val" id="res-wpm">—</div>
+        <div class="stat-card-sub" id="res-wpm-vs">—</div>
+        <div class="stat-card-lbl">WPM</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-val" id="res-acc">—</div>
+        <div class="stat-card-sub" id="res-errors">—</div>
+        <div class="stat-card-lbl">Accuracy</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-val" id="res-time">—</div>
+        <div class="stat-card-sub" id="res-pb">—</div>
+        <div class="stat-card-lbl">Time</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-val" id="res-rank">—</div>
+        <div class="stat-card-sub" id="res-rank-of">—</div>
+        <div class="stat-card-lbl">Today's Rank</div>
+      </div>
+    </div>
+    <div class="trail-section">
+      <div class="trail-title">Word-by-Word Trail</div>
+      <div class="trail-emojis" id="res-trail">—</div>
+      <div class="trail-legend">
+        <div class="legend-item">🐇 fast</div>
+        <div class="legend-item">🐕 steady</div>
+        <div class="legend-item">🐢 slow</div>
+        <div class="legend-item">💀 error</div>
+      </div>
+    </div>
+    <div class="share-block">
+      <div class="share-text" id="share-text">—</div>
+      <button id="copy-btn">⎘ Copy result to share</button>
+    </div>
+    <button class="play-again-btn" id="play-again-btn">Practice again →</button>
+  </div>
+
+</div>
+
+<input id="hidden-input"
+  type="text"
+  autocorrect="off"
+  autocapitalize="off"
+  autocomplete="off"
+  spellcheck="false"
+  inputmode="text"
+  aria-hidden="true"
+>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+
+const PASSAGES = [
+  {
+    theme: "summer solstice",
+    text: "The longest day of the year arrives quietly, announced only by the slow reluctance of the sun to set. Golden light stretches across the hills long past dinner."
+  },
+  {
+    theme: "early morning",
+    text: "Before the city stirs, there is a particular silence that belongs only to those awake enough to notice it. Coffee brews slowly while the sky turns from black to violet."
+  },
+  {
+    theme: "first snowfall",
+    text: "Snow arrived overnight without announcement, as it always does. By morning the yard wore a careful white silence, every edge softened, every sharp thing made gentle."
+  },
+  {
+    theme: "the open road",
+    text: "Some roads exist purely to be traveled, not to arrive anywhere in particular. The signage grows sparse and the towns grow small, until gradually the noise begins to lose its grip."
+  },
+  {
+    theme: "autumn harvest",
+    text: "The apples come down heavy this year, and the whole farm smells of something sweet and slightly fermented. By afternoon the light goes amber and low."
+  },
+  {
+    theme: "a library at dusk",
+    text: "At closing time the library grows quieter in a way that is different from its daytime quiet. Books wait in rows with their particular patience, knowing they will be opened again."
+  },
+  {
+    theme: "the ocean at night",
+    text: "Standing at the edge of the water after dark, the ocean becomes something else entirely. Its sound carries more weight without the distraction of sight."
+  },
+  {
+    theme: "a train journey",
+    text: "Train windows make philosophers of ordinary people. The landscape moves past at exactly the right speed for thinking, too fast to count the fence posts but slow enough to watch the fields change."
+  },
+  {
+    theme: "spring rain",
+    text: "The rain came gently at first, then with more conviction. Streets darkened and people ducked under awnings or simply gave in and walked through it."
+  },
+  {
+    theme: "a quiet Sunday",
+    text: "Sunday mornings ask very little. Toast goes slightly cold on plates and conversations wander without needing to arrive anywhere. Time moves differently on days like this."
+  }
+];
+
+const TIERS = [
+  { name: "Apprentice", minScore: 0 },
+  { name: "Scribe",     minScore: 40 },
+  { name: "Typist",     minScore: 60 },
+  { name: "Chronicler", minScore: 80 },
+  { name: "Archivist",  minScore: 95 }
+];
+
+const QUOTES = {
+  Apprentice: [
+    '"Nora Bean has seen better days, but she has also seen far worse."',
+    '"Nora Bean remains cautiously optimistic about your future."'
+  ],
+  Scribe: [
+    '"Nora Bean nods with the careful encouragement of a patient teacher."',
+    '"Nora Bean has noted your effort in the ledger. Both columns."'
+  ],
+  Typist: [
+    '"Nora Bean approves of your commitment to the craft."',
+    '"Nora Bean finds this satisfactory, which is not nothing."'
+  ],
+  Chronicler: [
+    '"Nora Bean is most impressed with your pace today."',
+    '"Nora Bean tips her hat — a rare gesture, mind you."'
+  ],
+  Archivist: [
+    '"Nora Bean tips her hat to you, Archivist. The records will reflect this."',
+    '"Nora Bean is speechless, which has never happened before."'
+  ]
+};
+
+// ── UTILS ─────────────────────────────────────────────────────────────────
+
+function getDayNumber() {
+  const epoch = new Date('2024-01-01').getTime();
+  const now = new Date();
+  const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  return Math.floor((todayMidnight - epoch) / 86400000) + 1;
+}
+
+function seededRand(seed) {
+  let s = seed;
+  return function() {
+    s = (s * 1664525 + 1013904223) & 0xffffffff;
+    return (s >>> 0) / 0xffffffff;
+  };
+}
+
+function getDailyPassage() {
+  const day = getDayNumber();
+  const rand = seededRand(day);
+  const idx = Math.floor(rand() * PASSAGES.length);
+  return { ...PASSAGES[idx], day };
+}
+
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+function getTier(wpm, accuracy) {
+  const score = wpm * (accuracy / 100);
+  let tier = TIERS[0];
+  for (const t of TIERS) {
+    if (score >= t.minScore) tier = t;
+  }
+  return tier.name;
+}
+
+function getQuote(tier) {
+  const qs = QUOTES[tier];
+  const day = getDayNumber();
+  return qs[day % qs.length];
+}
+
+function getSimulatedRank(wpm) {
+  // Simulate a bell-curve distribution
+  const percentile = Math.min(99, Math.max(1, Math.round(100 - (wpm / 120) * 80)));
+  const totalPlayers = 3000 + Math.floor(seededRand(getDayNumber() + 99)() * 3000);
+  return { percentile, totalPlayers };
+}
+
+function getStreak() {
+  const data = JSON.parse(localStorage.getItem('nbtt_streak') || '{"count":0,"lastDay":0}');
+  return data;
+}
+
+function updateStreak() {
+  const day = getDayNumber();
+  const data = getStreak();
+  if (data.lastDay === day) return data.count; // already played today
+  if (data.lastDay === day - 1) {
+    data.count += 1;
+  } else {
+    data.count = 1;
+  }
+  data.lastDay = day;
+  localStorage.setItem('nbtt_streak', JSON.stringify(data));
+  return data.count;
+}
+
+function getAvgWpm() {
+  const history = JSON.parse(localStorage.getItem('nbtt_wpm_history') || '[]');
+  if (!history.length) return null;
+  return Math.round(history.reduce((a,b) => a+b, 0) / history.length);
+}
+
+function saveWpm(wpm) {
+  const history = JSON.parse(localStorage.getItem('nbtt_wpm_history') || '[]');
+  history.push(wpm);
+  if (history.length > 20) history.shift();
+  localStorage.setItem('nbtt_wpm_history', JSON.stringify(history));
+}
+
+function getPersonalBest() {
+  return parseInt(localStorage.getItem('nbtt_pb_time') || '999999');
+}
+
+function savePersonalBest(time) {
+  const pb = getPersonalBest();
+  if (time < pb) {
+    localStorage.setItem('nbtt_pb_time', String(time));
+    return true;
+  }
+  return false;
+}
+
+// ── GAME STATE ────────────────────────────────────────────────────────────
+
+let state = {
+  passage: null,
+  words: [],
+  currentWordIdx: 0,
+  wordResults: [], // 'correct' | 'error'
+  wordTimes: [],   // ms per word
+  startTime: null,
+  timerInterval: null,
+  elapsedSeconds: 0,
+  totalTyped: 0,
+  totalErrors: 0,
+  isStarted: false,
+  isFinished: false,
+};
+
+// ── DOM ───────────────────────────────────────────────────────────────────
+
+const screens = {
+  start: document.getElementById('start-screen'),
+  typing: document.getElementById('typing-screen'),
+  results: document.getElementById('results-screen'),
+};
+
+const hiddenInput = document.getElementById('hidden-input');
+
+function showScreen(name) {
+  Object.values(screens).forEach(s => s.classList.remove('active'));
+  screens[name].classList.add('active');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+
+function init() {
+  const passage = getDailyPassage();
+  state.passage = passage;
+
+  const words = passage.text.replace(/[—]/g, '-').split(/\s+/).filter(Boolean);
+  state.words = words;
+
+  // Start screen
+  document.getElementById('start-day-num').textContent = passage.day;
+  document.getElementById('start-theme').textContent = passage.theme;
+  const preview = words.slice(0, 12).join(' ') + (words.length > 12 ? '…' : '');
+  document.getElementById('start-preview').textContent = '"' + preview + '"';
+  document.getElementById('start-words').textContent = words.length;
+  document.getElementById('start-est').textContent = Math.round((words.length / 60) * 60);
+  const streak = getStreak();
+  document.getElementById('start-streak').textContent = streak.count;
+
+  // Typing header
+  document.getElementById('typing-day-num').textContent = passage.day;
+  document.getElementById('typing-theme').textContent = passage.theme;
+  document.getElementById('live-streak').textContent = streak.count;
+
+  // Render passage words
+  renderPassage();
+
+  // Events
+  document.getElementById('start-btn').addEventListener('click', startGame);
+  document.getElementById('copy-btn').addEventListener('click', copyShare);
+  document.getElementById('play-again-btn').addEventListener('click', () => {
+    resetGame();
+    showScreen('start');
+  });
+
+  hiddenInput.addEventListener('keydown', onKeyDown);
+  hiddenInput.addEventListener('input', onInput);
+
+  // Tap passage to focus input
+  document.getElementById('passage-area').addEventListener('click', () => {
+    hiddenInput.focus();
+  });
+}
+
+function renderPassage() {
+  const display = document.getElementById('passage-display');
+  display.innerHTML = '';
+
+  state.words.forEach((word, i) => {
+    const span = document.createElement('span');
+    span.className = 'word upcoming';
+    span.id = 'word-' + i;
+    // Render each character as its own span for live feedback
+    word.split('').forEach(ch => {
+      const c = document.createElement('span');
+      c.className = 'char char-pending';
+      c.textContent = ch;
+      span.appendChild(c);
+    });
+    display.appendChild(span);
+
+    if (i < state.words.length - 1) {
+      const space = document.createElement('span');
+      space.className = 'word-space';
+      space.textContent = ' ';
+      display.appendChild(space);
+    }
+  });
+
+  activateWord(0);
+}
+
+// Make a word "active" — reset chars and underline position 0
+function activateWord(idx) {
+  document.querySelectorAll('.word').forEach(el => {
+    if (el.classList.contains('word-space')) return;
+    el.classList.remove('active');
+  });
+
+  const el = document.getElementById('word-' + idx);
+  if (!el) return;
+  el.classList.remove('upcoming', 'correct', 'error');
+  el.classList.add('active');
+
+  // Reset all chars to pending, clear any lingering cursor underline
+  el.querySelectorAll('.char').forEach(c => {
+    c.className = 'char char-pending';
+  });
+
+  // Underline the first character
+  const chars = el.querySelectorAll('.char');
+  if (chars.length > 0) chars[0].classList.add('char-cursor');
+
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Update char coloring + cursor underline as user types
+function updateActiveWordDisplay(typed) {
+  const el = document.getElementById('word-' + state.currentWordIdx);
+  if (!el) return;
+
+  const target = state.words[state.currentWordIdx];
+  const chars = el.querySelectorAll('.char');
+
+  // Cap the input to word length — prevents "stored" extra chars on over-type
+  if (typed.length > target.length) {
+    hiddenInput.value = typed.slice(0, target.length);
+    typed = hiddenInput.value;
+  }
+
+  // Color typed chars, reset the rest; add cursor underline on next char
+  chars.forEach((c, i) => {
+    if (i < typed.length) {
+      c.className = 'char ' + (typed[i] === target[i] ? 'char-correct' : 'char-wrong');
+    } else if (i === typed.length) {
+      // This is the character the cursor is sitting on
+      c.className = 'char char-pending char-cursor';
+    } else {
+      c.className = 'char char-pending';
+    }
+  });
+}
+
+// ── GAME LOGIC ────────────────────────────────────────────────────────────
+
+function startGame() {
+  showScreen('typing');
+  hiddenInput.focus();
+  hiddenInput.value = '';
+
+  state.currentWordIdx = 0;
+  state.wordResults = [];
+  state.wordTimes = [];
+  state.totalTyped = 0;
+  state.totalErrors = 0;
+  state.elapsedSeconds = 0;
+  state.isFinished = false;
+  state.startTime = null;
+
+  renderPassage();
+  updateStats();
+
+  // Re-focus on tap anywhere
+  document.addEventListener('touchstart', focusInput, { passive: true });
+  document.addEventListener('click', focusInput);
+}
+
+function focusInput() {
+  if (!state.isFinished) hiddenInput.focus();
+}
+
+let lastWordStart = null;
+
+function startTimer() {
+  if (state.startTime) return;
+  state.startTime = Date.now();
+  lastWordStart = state.startTime;
+  state.timerInterval = setInterval(() => {
+    state.elapsedSeconds = Math.floor((Date.now() - state.startTime) / 1000);
+    updateStats();
+  }, 250);
+}
+
+function onKeyDown(e) {
+  if (state.isFinished) return;
+
+  // Space / Enter = submit word
+  if (e.key === ' ' || e.key === 'Enter') {
+    e.preventDefault();
+    if (hiddenInput.value.length > 0) submitWord();
+    return;
+  }
+
+  // Backspace at empty input = go back to previous word
+  if (e.key === 'Backspace' && hiddenInput.value === '' && state.currentWordIdx > 0) {
+    e.preventDefault();
+    goBackWord();
+    return;
+  }
+
+  // Start timer on first real character
+  if (e.key.length === 1) startTimer();
+}
+
+function onInput(e) {
+  if (state.isFinished) return;
+  let val = hiddenInput.value;
+
+  // Mobile space → submit
+  if (val.endsWith(' ')) {
+    hiddenInput.value = val.trimEnd();
+    if (hiddenInput.value.length > 0) submitWord();
+    return;
+  }
+
+  if (val.length > 0) startTimer();
+
+  // Live character feedback (also enforces length cap)
+  updateActiveWordDisplay(val);
+}
+
+// Go back to previous word so user can re-type it
+function goBackWord() {
+  const prevIdx = state.currentWordIdx - 1;
+
+  // Undo the previous word's committed result
+  state.wordResults.pop();
+  state.wordTimes.pop();
+  state.totalTyped = Math.max(0, state.totalTyped - 1);
+  // Recalculate errors from scratch to be safe
+  state.totalErrors = state.wordResults.filter(r => r === 'error').length;
+
+  state.currentWordIdx = prevIdx;
+
+  // Reset previous word's appearance back to active
+  const el = document.getElementById('word-' + prevIdx);
+  if (el) {
+    el.classList.remove('correct', 'error', 'upcoming');
+    // Restore original char spans (they may have been wiped)
+    const target = state.words[prevIdx];
+    el.innerHTML = '';
+    target.split('').forEach(ch => {
+      const c = document.createElement('span');
+      c.className = 'char char-pending';
+      c.textContent = ch;
+      el.appendChild(c);
+    });
+  }
+
+  activateWord(prevIdx);
+  hiddenInput.value = '';
+  updateProgress();
+  updateStats();
+}
+
+function submitWord() {
+  const typed = hiddenInput.value;
+  const target = state.words[state.currentWordIdx];
+  const correct = typed === target;
+
+  // Measure time for this word
+  const now = Date.now();
+  const wordTime = lastWordStart ? (now - lastWordStart) : 1000;
+  lastWordStart = now;
+  state.wordTimes.push(wordTime);
+
+  state.wordResults.push(correct ? 'correct' : 'error');
+  state.totalTyped++;
+  if (!correct) state.totalErrors++;
+
+  // Finalise word appearance — clear active/cursor state, set final class
+  const el = document.getElementById('word-' + state.currentWordIdx);
+  if (el) {
+    el.classList.remove('active', 'upcoming');
+    el.classList.add(correct ? 'correct' : 'error');
+    // Strip all char sub-classes (including char-cursor)
+    el.querySelectorAll('.char').forEach(c => { c.className = 'char'; });
+  }
+
+  hiddenInput.value = '';
+  state.currentWordIdx++;
+
+  if (state.currentWordIdx >= state.words.length) {
+    finishGame();
+  } else {
+    activateWord(state.currentWordIdx);
+    updateProgress();
+    updateStats();
+  }
+}
+
+function updateStats() {
+  const elapsed = state.elapsedSeconds || 0;
+  const minutes = elapsed / 60 || 0.001;
+  const wpm = state.totalTyped > 0 ? Math.round(state.totalTyped / minutes) : 0;
+  const acc = state.totalTyped > 0
+    ? Math.round(((state.totalTyped - state.totalErrors) / state.totalTyped) * 100)
+    : 100;
+
+  document.getElementById('live-wpm').textContent = wpm;
+  document.getElementById('live-acc').textContent = acc + '%';
+  document.getElementById('live-time').textContent = formatTime(elapsed);
+}
+
+function updateProgress() {
+  const pct = (state.currentWordIdx / state.words.length) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+// Build the chunked (3-word) emoji trail
+function buildChunkedTrail() {
+  const results = state.wordResults;
+  const times   = state.wordTimes;
+  const chunkSize = 3;
+  const emojis = [];
+
+  // Overall average word time (for relative comparison)
+  const avgTime = times.length
+    ? times.reduce((a, b) => a + b, 0) / times.length
+    : 1000;
+
+  for (let i = 0; i < results.length; i += chunkSize) {
+    const chunkResults = results.slice(i, i + chunkSize);
+    const chunkTimes   = times.slice(i, i + chunkSize);
+
+    // Error takes precedence
+    if (chunkResults.includes('error')) {
+      emojis.push('💀');
+      continue;
+    }
+
+    // Average time of this chunk
+    const avgChunk = chunkTimes.length
+      ? chunkTimes.reduce((a, b) => a + b, 0) / chunkTimes.length
+      : avgTime;
+
+    if (avgChunk < avgTime * 0.85)      emojis.push('🐇');
+    else if (avgChunk < avgTime * 1.15) emojis.push('🐕');
+    else                                emojis.push('🐢');
+  }
+
+  return emojis.join('');
+}
+
+function finishGame() {
+  state.isFinished = true;
+  clearInterval(state.timerInterval);
+
+  const elapsed = state.elapsedSeconds;
+  document.getElementById('progress-bar').style.width = '100%';
+
+  const minutes = elapsed / 60 || 0.001;
+  const wpm    = Math.round(state.totalTyped / minutes);
+  const errors = state.totalErrors;
+  const acc    = Math.round(((state.totalTyped - errors) / state.totalTyped) * 100);
+  const tier   = getTier(wpm, acc);
+  const quote  = getQuote(tier);
+  const { percentile, totalPlayers } = getSimulatedRank(wpm);
+  const avgWpm = getAvgWpm();
+  const isPB   = savePersonalBest(elapsed);
+  updateStreak();
+  saveWpm(wpm);
+
+  const trailEmojis = buildChunkedTrail();
+
+  const shareText =
+    `⌨️ Nora Bean's Typing Trials #${state.passage.day}\n` +
+    trailEmojis + '\n' +
+    `⏱ ${formatTime(elapsed)}  💨 ${wpm} WPM  🎯 ${acc}%`;
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+
+  document.getElementById('res-day').textContent = state.passage.day;
+  document.getElementById('res-theme').textContent =
+    state.passage.theme.charAt(0).toUpperCase() + state.passage.theme.slice(1);
+  document.getElementById('res-date').textContent  = dateStr;
+  document.getElementById('res-tier').textContent  = tier;
+  document.getElementById('res-quote').textContent = quote;
+
+  document.getElementById('res-wpm').textContent = wpm;
+  if (avgWpm) {
+    const diff = wpm - avgWpm;
+    document.getElementById('res-wpm-vs').textContent =
+      (diff >= 0 ? '+' : '') + diff + ' vs your avg';
+    document.getElementById('res-wpm-vs').style.color =
+      diff >= 0 ? 'var(--green)' : 'var(--red)';
+  } else {
+    document.getElementById('res-wpm-vs').textContent = 'first trial!';
+  }
+
+  document.getElementById('res-acc').textContent    = acc + '%';
+  document.getElementById('res-errors').textContent =
+    errors + ' error' + (errors === 1 ? '' : 's');
+
+  document.getElementById('res-time').textContent = formatTime(elapsed);
+  document.getElementById('res-pb').textContent   = isPB ? 'personal best 🎉' : '';
+
+  document.getElementById('res-rank').textContent    = 'top ' + percentile + '%';
+  document.getElementById('res-rank-of').textContent =
+    'of ' + totalPlayers.toLocaleString() + ' players';
+
+  document.getElementById('res-trail').textContent    = trailEmojis;
+  document.getElementById('share-text').textContent   = shareText;
+
+  setTimeout(() => {
+    showScreen('results');
+    document.getElementById('results-screen').scrollTop = 0;
+    document.removeEventListener('touchstart', focusInput);
+    document.removeEventListener('click', focusInput);
+  }, 300);
+}
+
+function copyShare() {
+  const text = document.getElementById('share-text').textContent;
+  const btn  = document.getElementById('copy-btn');
+  const confirm = () => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = '⎘ Copy result to share';
+      btn.classList.remove('copied');
+    }, 2000);
+  };
+  navigator.clipboard.writeText(text).then(confirm).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    confirm();
+  });
+}
+
+function resetGame() {
+  clearInterval(state.timerInterval);
+  state = {
+    passage: state.passage,
+    words: state.words,
+    currentWordIdx: 0,
+    wordResults: [],
+    wordTimes: [],
+    startTime: null,
+    timerInterval: null,
+    elapsedSeconds: 0,
+    totalTyped: 0,
+    totalErrors: 0,
+    isStarted: false,
+    isFinished: false,
+  };
+  hiddenInput.value = '';
+  document.getElementById('progress-bar').style.width = '0%';
+  document.getElementById('live-wpm').textContent  = '0';
+  document.getElementById('live-acc').textContent  = '100%';
+  document.getElementById('live-time').textContent = '0:00';
+}
+
+// ── BOOT ──────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
