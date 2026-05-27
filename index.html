@@ -112,35 +112,52 @@
     margin-bottom: 16px;
   }
 
-  .start-passage-preview {
-    font-family: 'Bitter', serif;
-    font-size: 15px;
-    line-height: 1.7;
+  .start-card-info {
+    display: flex;
+    gap: 8px;
+    margin: 14px 0 0;
+    flex-wrap: wrap;
+  }
+
+  .start-info-pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
     color: var(--text-dim);
-    font-style: italic;
+    font-family: 'DM Mono', monospace;
+    white-space: nowrap;
   }
 
   .start-meta {
     display: flex;
-    gap: 16px;
-    margin-top: 14px;
-    padding-top: 14px;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding-top: 12px;
     border-top: 1px solid var(--border);
-  }
-
-  .start-meta-item {
-    font-size: 11px;
+    white-space: nowrap;
+    font-size: 12px;
     color: var(--text-dim);
     font-family: 'DM Mono', monospace;
   }
 
+  .start-meta-item {
+    display: inline;
+    white-space: nowrap;
+  }
+
   .start-meta-item span {
-    color: var(--text);
-    display: block;
-    font-size: 16px;
+    display: inline;
     font-weight: 600;
+    color: var(--text);
     font-family: 'DM Sans', sans-serif;
-    margin-bottom: 2px;
+    font-size: 12px;
+  }
+
+  .start-meta-sep {
+    color: var(--border);
   }
 
   .streak-badge-start {
@@ -483,26 +500,29 @@
 
   #copy-btn {
     width: 100%;
-    background: var(--surface2);
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px;
-    font-size: 14px;
-    font-weight: 500;
+    background: var(--text);
+    color: var(--bg);
+    border: none;
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 600;
     font-family: 'DM Sans', sans-serif;
     cursor: pointer;
+    letter-spacing: 0.2px;
+    transition: opacity 0.15s;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    transition: background 0.15s, color 0.15s;
+    gap: 9px;
   }
 
+  #copy-btn:active { opacity: 0.8; }
+
   #copy-btn.copied {
-    background: var(--green-dim);
-    color: var(--green);
-    border-color: var(--green);
+    background: var(--green);
+    color: var(--bg);
+    opacity: 1;
   }
 
   .play-again-btn {
@@ -553,10 +573,14 @@
 
     <div class="start-card">
       <div class="theme-pill-start">☀️ <span id="start-theme">loading…</span></div>
-      <div class="start-passage-preview" id="start-preview">—</div>
+      <div class="start-card-info">
+        <div class="start-info-pill">⌨️ Autocorrect Off</div>
+        <div class="start-info-pill">👆 Swiping Off</div>
+      </div>
       <div class="start-meta">
-        <div class="start-meta-item"><span id="start-words">—</span>words</div>
-        <div class="start-meta-item"><span>~<span id="start-est">—</span>s</span>at 60 WPM</div>
+        <span class="start-meta-item"><span id="start-words">—</span> words</span>
+        <span class="start-meta-sep">·</span>
+        <span class="start-meta-item">~<span id="start-est">—</span>s est. at mobile avg</span>
       </div>
     </div>
 
@@ -564,7 +588,7 @@
       🔥 <span class="streak-num" id="start-streak">0</span>&nbsp;day streak
     </div>
 
-    <button id="start-btn">Begin Trial</button>
+    <button id="start-btn">Start Typing Trial</button>
   </div>
 
   <!-- TYPING SCREEN -->
@@ -596,7 +620,7 @@
     <div class="passage-area" id="passage-area">
       <div class="passage-text" id="passage-display"></div>
     </div>
-    <div class="typing-footer">autocorrect off · swipe typing on</div>
+    <div class="typing-footer">autocorrect off · swipe typing off</div>
   </div>
 
   <!-- RESULTS SCREEN -->
@@ -632,7 +656,7 @@
       </div>
     </div>
     <div class="trail-section">
-      <div class="trail-title">Word-by-Word Trail</div>
+      <div class="trail-title">WORD TRAIL</div>
       <div class="trail-emojis" id="res-trail">—</div>
       <div class="trail-legend">
         <div class="legend-item">🐇 fast</div>
@@ -643,7 +667,7 @@
     </div>
     <div class="share-block">
       <div class="share-text" id="share-text">—</div>
-      <button id="copy-btn">⎘ Copy result to share</button>
+      <button id="copy-btn" class="share-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Share Word Trail</button>
     </div>
     <button class="play-again-btn" id="play-again-btn">Practice again →</button>
   </div>
@@ -657,6 +681,7 @@
   autocomplete="off"
   spellcheck="false"
   inputmode="text"
+  data-gramm="false"
   aria-hidden="true"
 >
 
@@ -707,11 +732,11 @@ const PASSAGES = [
 ];
 
 const TIERS = [
-  { name: "Apprentice", minScore: 0 },
-  { name: "Scribe",     minScore: 40 },
-  { name: "Typist",     minScore: 60 },
-  { name: "Chronicler", minScore: 80 },
-  { name: "Archivist",  minScore: 95 }
+  { name: "Apprentice", minScore: 0  },  // <20 WPM equivalent
+  { name: "Scribe",     minScore: 20 },  // ~25 WPM @ 80% acc
+  { name: "Typist",     minScore: 30 },  // ~35 WPM @ 90% acc (mobile avg)
+  { name: "Chronicler", minScore: 42 },  // ~50 WPM @ 85% acc
+  { name: "Archivist",  minScore: 55 }   // ~60+ WPM @ 90%+ acc
 ];
 
 const QUOTES = {
@@ -783,8 +808,10 @@ function getQuote(tier) {
 }
 
 function getSimulatedRank(wpm) {
-  // Simulate a bell-curve distribution
-  const percentile = Math.min(99, Math.max(1, Math.round(100 - (wpm / 120) * 80)));
+  // Mobile bell-curve centered around 35 WPM
+  // ~50th percentile at 35 WPM, top 10% at ~55 WPM, top 1% at ~70+ WPM
+  const raw = 100 - (100 / (1 + Math.exp(-0.12 * (wpm - 35))));
+  const percentile = Math.min(99, Math.max(1, Math.round(raw)));
   const totalPlayers = 3000 + Math.floor(seededRand(getDayNumber() + 99)() * 3000);
   return { percentile, totalPlayers };
 }
@@ -878,10 +905,8 @@ function init() {
   // Start screen
   document.getElementById('start-day-num').textContent = passage.day;
   document.getElementById('start-theme').textContent = passage.theme;
-  const preview = words.slice(0, 12).join(' ') + (words.length > 12 ? '…' : '');
-  document.getElementById('start-preview').textContent = '"' + preview + '"';
   document.getElementById('start-words').textContent = words.length;
-  document.getElementById('start-est').textContent = Math.round((words.length / 60) * 60);
+  document.getElementById('start-est').textContent = Math.round((words.length / 35) * 60);
   const streak = getStreak();
   document.getElementById('start-streak').textContent = streak.count;
 
@@ -981,7 +1006,6 @@ function updateActiveWordDisplay(typed) {
     if (i < typed.length) {
       c.className = 'char ' + (typed[i] === target[i] ? 'char-correct' : 'char-wrong');
     } else if (i === typed.length) {
-      // This is the character the cursor is sitting on
       c.className = 'char char-pending char-cursor';
     } else {
       c.className = 'char char-pending';
@@ -1029,12 +1053,27 @@ function startTimer() {
   }, 250);
 }
 
+let lastSpaceTime = 0;
+
 function onKeyDown(e) {
   if (state.isFinished) return;
 
   // Space / Enter = submit word
   if (e.key === ' ' || e.key === 'Enter') {
     e.preventDefault();
+
+    // iOS double-space → period: if two spaces within 500ms and input is empty,
+    // treat as a period appended to the previous (already-submitted) word — just skip.
+    const now = Date.now();
+    if (e.key === ' ') {
+      if (now - lastSpaceTime < 500 && hiddenInput.value === '') {
+        // Double-space on empty input: nothing useful to do, absorb it
+        lastSpaceTime = 0;
+        return;
+      }
+      lastSpaceTime = now;
+    }
+
     if (hiddenInput.value.length > 0) submitWord();
     return;
   }
@@ -1053,6 +1092,14 @@ function onKeyDown(e) {
 function onInput(e) {
   if (state.isFinished) return;
   let val = hiddenInput.value;
+
+  // iOS double-space inserts ". " — strip the period and treat as word submit
+  if (val.endsWith('. ') || val.endsWith('.')) {
+    const trimmed = val.replace(/\.\s*$/, '').trim();
+    hiddenInput.value = trimmed;
+    if (trimmed.length > 0) submitWord();
+    return;
+  }
 
   // Mobile space → submit
   if (val.endsWith(' ')) {
@@ -1104,7 +1151,10 @@ function goBackWord() {
 function submitWord() {
   const typed = hiddenInput.value;
   const target = state.words[state.currentWordIdx];
-  const correct = typed === target;
+  // Strip trailing punctuation from both sides for comparison
+  // so typing "dinner" matches "dinner," and iOS ". " doesn't cause false errors
+  const normalize = s => s.replace(/[.,!?;:'"]+$/, '');
+  const correct = normalize(typed) === normalize(target);
 
   // Measure time for this word
   const now = Date.now();
@@ -1193,6 +1243,7 @@ function buildChunkedTrail() {
 function finishGame() {
   state.isFinished = true;
   clearInterval(state.timerInterval);
+  hiddenInput.blur(); // dismiss keyboard on finish
 
   const elapsed = state.elapsedSeconds;
   document.getElementById('progress-bar').style.width = '100%';
@@ -1266,7 +1317,7 @@ function copyShare() {
     btn.textContent = '✓ Copied!';
     btn.classList.add('copied');
     setTimeout(() => {
-      btn.textContent = '⎘ Copy result to share';
+      btn.textContent = 'Share Word Trail';
       btn.classList.remove('copied');
     }, 2000);
   };
