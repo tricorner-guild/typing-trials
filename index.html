@@ -568,7 +568,7 @@
     <div class="logo-area">
       <span class="logo-bean">🫘</span>
       <div class="logo-title">Nora Bean's<br>Typing Trials</div>
-      <div class="logo-sub">daily passage · trial #<span id="start-day-num">—</span></div>
+      <div class="logo-sub">A daily typing trial you can share · #<span id="start-day-num">—</span></div>
     </div>
 
     <div class="start-card">
@@ -765,7 +765,7 @@ const QUOTES = {
 // ── UTILS ─────────────────────────────────────────────────────────────────
 
 function getDayNumber() {
-  const epoch = new Date('2024-01-01').getTime();
+  const epoch = new Date('2026-05-27').getTime();
   const now = new Date();
   const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
   return Math.floor((todayMidnight - epoch) / 86400000) + 1;
