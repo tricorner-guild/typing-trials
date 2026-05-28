@@ -991,29 +991,55 @@ function activateWord(idx) {
 }
 
 // Update char coloring + cursor underline as user types
-function updateActiveWordDisplay(typed) {
+function updateActiveWordDisplay(rawTyped) {
   const el = document.getElementById('word-' + state.currentWordIdx);
   if (!el) return;
 
+  // Normalize away Android GBoard substitutions
+  let typed = normalizeInput(rawTyped);
   const target = state.words[state.currentWordIdx];
+  // Normalize target the same way for fair comparison
+  const normTarget = normalizeInput(target);
   const chars = el.querySelectorAll('.char');
 
-  // Cap the input to word length — prevents "stored" extra chars on over-type
-  if (typed.length > target.length) {
-    hiddenInput.value = typed.slice(0, target.length);
-    typed = hiddenInput.value;
+  // Cap to word length — prevents stored extra chars on over-type
+  if (typed.length > normTarget.length) {
+    typed = typed.slice(0, normTarget.length);
+    hiddenInput.value = typed;
   }
 
   // Color typed chars, reset the rest; add cursor underline on next char
   chars.forEach((c, i) => {
     if (i < typed.length) {
-      c.className = 'char ' + (typed[i] === target[i] ? 'char-correct' : 'char-wrong');
+      c.className = 'char ' + (typed[i] === normTarget[i] ? 'char-correct' : 'char-wrong');
     } else if (i === typed.length) {
       c.className = 'char char-pending char-cursor';
     } else {
       c.className = 'char char-pending';
     }
   });
+}
+
+// ── INPUT NORMALIZATION ──────────────────────────────────────────────────
+// Cleans Android GBoard substitutions before any comparison:
+// smart quotes, auto-caps, non-breaking spaces, unicode lookalikes, etc.
+function normalizeInput(str) {
+  return str
+    .normalize('NFC')
+    .replace(/[‘’ʼ`´]/g, "'") // smart/curly apostrophes
+    .replace(/[“”]/g, '"')                    // smart double quotes
+    .replace(/[–—]/g, '-')                    // en/em dash
+    .replace(/ /g, ' ')                            // non-breaking space
+    .replace(/[​‌‍﻿]/g, '')         // zero-width chars
+    .trim();
+}
+
+// Sanitize the hidden input's live value in-place, return cleaned string
+function sanitizeHiddenInput() {
+  const raw = hiddenInput.value;
+  const clean = normalizeInput(raw);
+  if (clean !== raw) hiddenInput.value = clean;
+  return clean;
 }
 
 // ── GAME LOGIC ────────────────────────────────────────────────────────────
@@ -1123,8 +1149,9 @@ function onInput(e) {
 
   if (val.length > 0) startTimer();
 
-  // Live character feedback
-  updateActiveWordDisplay(val);
+  // Sanitize GBoard substitutions in-place, then update display
+  const clean = sanitizeHiddenInput();
+  updateActiveWordDisplay(clean);
 }
 
 function onCompositionStart() {
@@ -1143,7 +1170,8 @@ function onCompositionEnd(e) {
   }
 
   if (val.length > 0) startTimer();
-  updateActiveWordDisplay(val);
+  const clean = sanitizeHiddenInput();
+  updateActiveWordDisplay(clean);
 }
 
 // Go back to previous word so user can re-type it
@@ -1181,12 +1209,11 @@ function goBackWord() {
 }
 
 function submitWord() {
-  const typed = hiddenInput.value;
+  const typed = normalizeInput(hiddenInput.value);
   const target = state.words[state.currentWordIdx];
-  // Strip trailing punctuation from both sides for comparison
-  // so typing "dinner" matches "dinner," and iOS ". " doesn't cause false errors
-  const normalize = s => s.replace(/[.,!?;:'"]+$/, '');
-  const correct = normalize(typed) === normalize(target);
+  // Strip trailing punctuation after full normalization
+  const stripPunct = s => normalizeInput(s).replace(/[.,!?;:'"]+$/, '');
+  const correct = stripPunct(typed) === stripPunct(target);
 
   // Measure time for this word
   const now = Date.now();
