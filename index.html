@@ -568,7 +568,7 @@
     <div class="logo-area">
       <span class="logo-bean">🫘</span>
       <div class="logo-title">Nora Bean's<br>Typing Trials</div>
-      <div class="logo-sub">A daily typing trial you can share · #<span id="start-day-num">—</span></div>
+      <div class="logo-sub">A daily typing trial · #<span id="start-day-num">—</span></div>
     </div>
 
     <div class="start-card">
@@ -677,11 +677,12 @@
 <input id="hidden-input"
   type="text"
   autocorrect="off"
-  autocapitalize="off"
+  autocapitalize="none"
   autocomplete="off"
+  autocomplete="new-password"
   spellcheck="false"
   inputmode="text"
-  data-gramm="false"
+  enterkeyhint="done"
   aria-hidden="true"
 >
 
@@ -928,6 +929,8 @@ function init() {
 
   hiddenInput.addEventListener('keydown', onKeyDown);
   hiddenInput.addEventListener('input', onInput);
+  hiddenInput.addEventListener('compositionstart', onCompositionStart);
+  hiddenInput.addEventListener('compositionend', onCompositionEnd);
 
   // Tap passage to focus input
   document.getElementById('passage-area').addEventListener('click', () => {
@@ -1054,20 +1057,19 @@ function startTimer() {
 }
 
 let lastSpaceTime = 0;
+let isComposing = false; // true while Android IME is mid-composition
 
 function onKeyDown(e) {
   if (state.isFinished) return;
 
-  // Space / Enter = submit word
+  // Space / Enter = submit word (desktop + iOS; Android fires this too for space)
   if (e.key === ' ' || e.key === 'Enter') {
     e.preventDefault();
 
-    // iOS double-space → period: if two spaces within 500ms and input is empty,
-    // treat as a period appended to the previous (already-submitted) word — just skip.
+    // iOS double-space → period: absorb if input already empty
     const now = Date.now();
     if (e.key === ' ') {
       if (now - lastSpaceTime < 500 && hiddenInput.value === '') {
-        // Double-space on empty input: nothing useful to do, absorb it
         lastSpaceTime = 0;
         return;
       }
@@ -1079,21 +1081,32 @@ function onKeyDown(e) {
   }
 
   // Backspace at empty input = go back to previous word
-  if (e.key === 'Backspace' && hiddenInput.value === '' && state.currentWordIdx > 0) {
+  // Use e.key here only when NOT composing (Android fires Backspace reliably)
+  if (e.key === 'Backspace' && !isComposing && hiddenInput.value === '' && state.currentWordIdx > 0) {
     e.preventDefault();
     goBackWord();
     return;
   }
 
-  // Start timer on first real character
+  // Start timer — works on desktop/iOS; Android supplement is in onInput
   if (e.key.length === 1) startTimer();
 }
 
 function onInput(e) {
   if (state.isFinished) return;
+
+  // Skip during IME composition — wait for compositionend
+  if (isComposing) return;
+
   let val = hiddenInput.value;
 
-  // iOS double-space inserts ". " — strip the period and treat as word submit
+  // Android backspace on empty input via deleteContentBackward
+  if (e.inputType === 'deleteContentBackward' && val === '' && state.currentWordIdx > 0) {
+    goBackWord();
+    return;
+  }
+
+  // iOS double-space inserts ". " — strip period and submit
   if (val.endsWith('. ') || val.endsWith('.')) {
     const trimmed = val.replace(/\.\s*$/, '').trim();
     hiddenInput.value = trimmed;
@@ -1101,7 +1114,7 @@ function onInput(e) {
     return;
   }
 
-  // Mobile space → submit
+  // Space → submit (catches Android space which may not fire keydown reliably)
   if (val.endsWith(' ')) {
     hiddenInput.value = val.trimEnd();
     if (hiddenInput.value.length > 0) submitWord();
@@ -1110,7 +1123,26 @@ function onInput(e) {
 
   if (val.length > 0) startTimer();
 
-  // Live character feedback (also enforces length cap)
+  // Live character feedback
+  updateActiveWordDisplay(val);
+}
+
+function onCompositionStart() {
+  isComposing = true;
+}
+
+function onCompositionEnd(e) {
+  isComposing = false;
+  // The composed value is now committed — process it exactly like onInput
+  let val = hiddenInput.value;
+
+  if (val.endsWith(' ')) {
+    hiddenInput.value = val.trimEnd();
+    if (hiddenInput.value.length > 0) submitWord();
+    return;
+  }
+
+  if (val.length > 0) startTimer();
   updateActiveWordDisplay(val);
 }
 
